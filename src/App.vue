@@ -1,7 +1,24 @@
 <template>
   <div class="container">
-    <h1>Excel to SQL Converter</h1>
-    <p>Upload an Excel file to convert it to SQL statements</p>
+    <div class="language-switcher">
+      <button
+        @click="switchLanguage('en')"
+        :class="{ active: locale === 'en' }"
+        class="lang-btn"
+      >
+        EN
+      </button>
+      <button
+        @click="switchLanguage('ru')"
+        :class="{ active: locale === 'ru' }"
+        class="lang-btn"
+      >
+        RU
+      </button>
+    </div>
+
+    <h1>{{ t('title') }}</h1>
+    <p>{{ t('subtitle') }}</p>
 
     <div class="upload-section">
       <input
@@ -13,41 +30,44 @@
     </div>
 
     <div v-if="columns.length > 0" class="column-config">
-      <h2>Configure Column Types</h2>
+      <h2>{{ t('configureColumns') }}</h2>
       <div class="columns-grid">
         <div v-for="(col, index) in columns" :key="index" class="column-item">
           <label>{{ col.name }}</label>
           <select v-model="col.type">
-            <option value="VARCHAR(255)">VARCHAR(255)</option>
-            <option value="INT">INT</option>
-            <option value="BIGINT">BIGINT</option>
-            <option value="DECIMAL(10,2)">DECIMAL(10,2)</option>
-            <option value="DATE">DATE</option>
-            <option value="DATETIME">DATETIME</option>
-            <option value="TEXT">TEXT</option>
-            <option value="BOOLEAN">BOOLEAN</option>
+            <option value="VARCHAR(255)">{{ t('columnTypes.varchar') }}</option>
+            <option value="INT">{{ t('columnTypes.int') }}</option>
+            <option value="BIGINT">{{ t('columnTypes.bigint') }}</option>
+            <option value="DECIMAL(10,2)">{{ t('columnTypes.decimal') }}</option>
+            <option value="DATE">{{ t('columnTypes.date') }}</option>
+            <option value="DATETIME">{{ t('columnTypes.datetime') }}</option>
+            <option value="TEXT">{{ t('columnTypes.text') }}</option>
+            <option value="BOOLEAN">{{ t('columnTypes.boolean') }}</option>
           </select>
         </div>
       </div>
 
       <div class="table-name-section">
-        <label for="tableName">Table Name:</label>
+        <label for="tableName">{{ t('tableName') }}:</label>
         <input
           id="tableName"
           v-model="tableName"
           type="text"
-          placeholder="my_table"
+          :placeholder="t('tableNamePlaceholder')"
         />
       </div>
 
-      <button @click="generateSQL" class="generate-btn">Generate SQL</button>
+      <div class="button-group">
+        <button @click="generateSQL" class="generate-btn">{{ t('generateSQL') }}</button>
+        <button @click="generateAndDownload" class="generate-btn secondary">{{ t('generateAndDownload') }}</button>
+      </div>
     </div>
 
     <div v-if="sqlOutput" class="output">
-      <h2>Generated SQL</h2>
+      <h2>{{ t('generatedSQL') }}</h2>
       <div class="sql-actions">
-        <button @click="copyToClipboard">Copy to Clipboard</button>
-        <button @click="downloadSQL">Download SQL File</button>
+        <button @click="copyToClipboard">{{ t('copyToClipboard') }}</button>
+        <button @click="downloadSQL">{{ t('downloadSQL') }}</button>
       </div>
       <pre>{{ sqlOutput }}</pre>
     </div>
@@ -56,6 +76,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import * as XLSX from 'xlsx'
 
 interface Column {
@@ -63,11 +84,18 @@ interface Column {
   type: string
 }
 
+const { t, locale } = useI18n()
+
 const fileInput = ref<HTMLInputElement | null>(null)
 const columns = ref<Column[]>([])
 const tableName = ref<string>('my_table')
 const sqlOutput = ref<string>('')
 const excelData = ref<any[]>([])
+
+const switchLanguage = (lang: string) => {
+  locale.value = lang
+  localStorage.setItem('language', lang)
+}
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement
@@ -158,7 +186,7 @@ const sanitizeTableName = (name: string): string => {
 const copyToClipboard = async () => {
   try {
     await navigator.clipboard.writeText(sqlOutput.value)
-    alert('SQL copied to clipboard!')
+    alert(t('copiedSuccess'))
   } catch (err) {
     console.error('Failed to copy:', err)
   }
@@ -173,12 +201,55 @@ const downloadSQL = () => {
   a.click()
   window.URL.revokeObjectURL(url)
 }
+
+const generateAndDownload = () => {
+  if (columns.value.length === 0 || excelData.value.length === 0) return
+
+  const createTableSQL = generateCreateTableSQL()
+  const insertSQL = generateInsertSQL()
+  const sql = `${createTableSQL}\n\n${insertSQL}`
+
+  const blob = new Blob([sql], { type: 'text/plain' })
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${tableName.value}.sql`
+  a.click()
+  window.URL.revokeObjectURL(url)
+}
 </script>
 
 <style scoped>
 .container {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.language-switcher {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.lang-btn {
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  border: 1px solid #646cff;
+  background-color: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.lang-btn:hover {
+  background-color: rgba(100, 108, 255, 0.1);
+}
+
+.lang-btn.active {
+  background-color: #646cff;
+  color: white;
 }
 
 h1 {
@@ -240,8 +311,14 @@ h1 {
   min-width: 200px;
 }
 
-.generate-btn {
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
   margin-top: 1rem;
+}
+
+.generate-btn {
   background-color: #646cff;
   color: white;
   padding: 0.8rem 2rem;
@@ -250,6 +327,14 @@ h1 {
 
 .generate-btn:hover {
   background-color: #535bf2;
+}
+
+.generate-btn.secondary {
+  background-color: #42b983;
+}
+
+.generate-btn.secondary:hover {
+  background-color: #33a372;
 }
 
 .sql-actions {
