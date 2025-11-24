@@ -7,13 +7,15 @@ A modern Vue.js 3 application built with TypeScript and Vite for converting Exce
 ## Features
 
 - Upload Excel files (.xlsx, .xls)
-- Automatic column detection
-- Manual column type configuration (VARCHAR, INT, DECIMAL, DATE, etc.)
+- Automatic data type detection for columns (INT, BIGINT, DECIMAL, DATETIME, BOOLEAN, TEXT, VARCHAR)
+- Manual column type configuration
 - Custom table naming
 - Generate CREATE TABLE statements
 - Generate INSERT statements with proper value escaping
 - Copy to clipboard functionality
 - Download generated SQL files
+- Direct download option (generate and download without preview)
+- Multi-language support (English/Russian)
 - Modern UI with dark/light mode support
 
 ## Tech Stack
@@ -22,6 +24,7 @@ A modern Vue.js 3 application built with TypeScript and Vite for converting Exce
 - TypeScript
 - Vite
 - XLSX library for Excel parsing
+- Vue I18n for internationalization
 
 ## Installation
 
@@ -64,10 +67,10 @@ npm run type-check
 ## Usage
 
 1. Click the file input to select an Excel file
-2. The application will automatically detect columns
-3. Configure the data type for each column
+2. The application will automatically detect columns and their data types
+3. Review and adjust data types if needed
 4. Set the desired table name
-5. Click "Generate SQL" to create the SQL statements
+5. Click "Generate SQL" to view the SQL statements, or "Generate and Download" to download directly
 6. Copy to clipboard or download the generated SQL file
 
 ## Column Types Supported

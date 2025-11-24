@@ -1,9 +1,7 @@
 export default {
   title: 'Excel to SQL Converter',
-  subtitle: 'Convert between Excel and SQL formats with automatic data type detection',
+  subtitle: 'Upload an Excel file to convert it to SQL statements with automatic data type detection',
   uploadFile: 'Choose File',
-  excelToSql: 'Excel to SQL',
-  sqlToExcel: 'SQL to Excel',
   configureColumns: 'Configure Column Types',
   tableName: 'Table Name',
   tableNamePlaceholder: 'my_table',
@@ -12,12 +10,7 @@ export default {
   generatedSQL: 'Generated SQL',
   copyToClipboard: 'Copy to Clipboard',
   downloadSQL: 'Download SQL File',
-  downloadExcel: 'Download Excel File',
   copiedSuccess: 'SQL copied to clipboard!',
-  parsedData: 'Parsed SQL Data',
-  tableNameDetected: 'Table Name Detected',
-  rowsFound: 'Rows Found',
-  columnsFound: 'Columns Found',
   columnTypes: {
     varchar: 'VARCHAR(255)',
     int: 'INT',

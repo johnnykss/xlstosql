@@ -20,33 +20,14 @@
     <h1>{{ t('title') }}</h1>
     <p>{{ t('subtitle') }}</p>
 
-    <div class="mode-tabs">
-      <button
-        @click="mode = 'excel-to-sql'"
-        :class="{ active: mode === 'excel-to-sql' }"
-        class="tab-btn"
-      >
-        {{ t('excelToSql') }}
-      </button>
-      <button
-        @click="mode = 'sql-to-excel'"
-        :class="{ active: mode === 'sql-to-excel' }"
-        class="tab-btn"
-      >
-        {{ t('sqlToExcel') }}
-      </button>
+    <div class="upload-section">
+      <input
+        type="file"
+        @change="handleFileUpload"
+        accept=".xlsx,.xls"
+        ref="fileInput"
+      />
     </div>
-
-    <!-- Excel to SQL Mode -->
-    <div v-if="mode === 'excel-to-sql'">
-      <div class="upload-section">
-        <input
-          type="file"
-          @change="handleFileUpload"
-          accept=".xlsx,.xls"
-          ref="fileInput"
-        />
-      </div>
 
     <div v-if="columns.length > 0" class="column-config">
       <h2>{{ t('configureColumns') }}</h2>
@@ -82,37 +63,13 @@
       </div>
     </div>
 
-      <div v-if="sqlOutput" class="output">
-        <h2>{{ t('generatedSQL') }}</h2>
-        <div class="sql-actions">
-          <button @click="copyToClipboard">{{ t('copyToClipboard') }}</button>
-          <button @click="downloadSQL">{{ t('downloadSQL') }}</button>
-        </div>
-        <pre>{{ sqlOutput }}</pre>
+    <div v-if="sqlOutput" class="output">
+      <h2>{{ t('generatedSQL') }}</h2>
+      <div class="sql-actions">
+        <button @click="copyToClipboard">{{ t('copyToClipboard') }}</button>
+        <button @click="downloadSQL">{{ t('downloadSQL') }}</button>
       </div>
-    </div>
-
-    <!-- SQL to Excel Mode -->
-    <div v-if="mode === 'sql-to-excel'">
-      <div class="upload-section">
-        <input
-          type="file"
-          @change="handleSqlFileUpload"
-          accept=".sql"
-          ref="sqlFileInput"
-        />
-      </div>
-
-      <div v-if="sqlData.length > 0" class="sql-info">
-        <h2>{{ t('parsedData') }}</h2>
-        <p>{{ t('tableNameDetected') }}: <strong>{{ parsedTableName }}</strong></p>
-        <p>{{ t('rowsFound') }}: <strong>{{ sqlData.length }}</strong></p>
-        <p>{{ t('columnsFound') }}: <strong>{{ sqlColumns.length }}</strong></p>
-
-        <div class="button-group">
-          <button @click="downloadExcel" class="generate-btn">{{ t('downloadExcel') }}</button>
-        </div>
-      </div>
+      <pre>{{ sqlOutput }}</pre>
     </div>
   </div>
 </template>
@@ -129,20 +86,11 @@ interface Column {
 
 const { t, locale } = useI18n()
 
-const mode = ref<'excel-to-sql' | 'sql-to-excel'>('excel-to-sql')
-
-// Excel to SQL refs
 const fileInput = ref<HTMLInputElement | null>(null)
 const columns = ref<Column[]>([])
 const tableName = ref<string>('my_table')
 const sqlOutput = ref<string>('')
 const excelData = ref<any[]>([])
-
-// SQL to Excel refs
-const sqlFileInput = ref<HTMLInputElement | null>(null)
-const sqlData = ref<any[]>([])
-const sqlColumns = ref<string[]>([])
-const parsedTableName = ref<string>('')
 
 const switchLanguage = (lang: string) => {
   locale.value = lang
@@ -343,126 +291,6 @@ const generateAndDownload = () => {
   a.click()
   window.URL.revokeObjectURL(url)
 }
-
-// SQL to Excel functions
-const handleSqlFileUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-
-  if (!file) return
-
-  const reader = new FileReader()
-
-  reader.onload = (e) => {
-    const sqlContent = e.target?.result as string
-    parseSqlFile(sqlContent)
-  }
-
-  reader.readAsText(file)
-}
-
-const parseSqlFile = (sqlContent: string) => {
-  // Reset data
-  sqlData.value = []
-  sqlColumns.value = []
-  parsedTableName.value = ''
-
-  // Extract table name from CREATE TABLE statement
-  const createTableMatch = sqlContent.match(/CREATE\s+TABLE\s+(\w+)\s*\(/i)
-  if (createTableMatch) {
-    parsedTableName.value = createTableMatch[1]
-  }
-
-  // Extract column names from CREATE TABLE
-  const columnsMatch = sqlContent.match(/CREATE\s+TABLE\s+\w+\s*\(([\s\S]*?)\);/i)
-  if (columnsMatch) {
-    const columnDefs = columnsMatch[1].split(',')
-    sqlColumns.value = columnDefs.map(def => {
-      const match = def.trim().match(/^(\w+)/)
-      return match ? match[1] : ''
-    }).filter(col => col !== '')
-  }
-
-  // Parse INSERT statements
-  const insertRegex = /INSERT\s+INTO\s+\w+\s*\([^)]+\)\s*VALUES\s*\(([^)]+)\);?/gi
-  let match
-
-  while ((match = insertRegex.exec(sqlContent)) !== null) {
-    const valuesStr = match[1]
-    const values = parseInsertValues(valuesStr)
-
-    if (values.length === sqlColumns.value.length) {
-      const row: Record<string, any> = {}
-      sqlColumns.value.forEach((col, index) => {
-        row[col] = values[index]
-      })
-      sqlData.value.push(row)
-    }
-  }
-}
-
-const parseInsertValues = (valuesStr: string): any[] => {
-  const values: any[] = []
-  let current = ''
-  let inString = false
-  let stringChar = ''
-
-  for (let i = 0; i < valuesStr.length; i++) {
-    const char = valuesStr[i]
-
-    if ((char === "'" || char === '"') && (i === 0 || valuesStr[i - 1] !== '\\')) {
-      if (!inString) {
-        inString = true
-        stringChar = char
-      } else if (char === stringChar) {
-        inString = false
-        stringChar = ''
-      }
-      continue
-    }
-
-    if (char === ',' && !inString) {
-      values.push(parseValue(current.trim()))
-      current = ''
-      continue
-    }
-
-    current += char
-  }
-
-  if (current.trim()) {
-    values.push(parseValue(current.trim()))
-  }
-
-  return values
-}
-
-const parseValue = (value: string): any => {
-  if (value.toUpperCase() === 'NULL') {
-    return null
-  }
-
-  if (value.match(/^\d+$/)) {
-    return parseInt(value)
-  }
-
-  if (value.match(/^\d+\.\d+$/)) {
-    return parseFloat(value)
-  }
-
-  return value
-}
-
-const downloadExcel = () => {
-  if (sqlData.value.length === 0) return
-
-  const worksheet = XLSX.utils.json_to_sheet(sqlData.value)
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-
-  const fileName = parsedTableName.value ? `${parsedTableName.value}.xlsx` : 'export.xlsx'
-  XLSX.writeFile(workbook, fileName)
-}
 </script>
 
 <style scoped>
@@ -496,53 +324,6 @@ const downloadExcel = () => {
 .lang-btn.active {
   background-color: #646cff;
   color: white;
-}
-
-.mode-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 2rem 0;
-}
-
-.tab-btn {
-  padding: 0.8rem 2rem;
-  border-radius: 8px 8px 0 0;
-  border: 2px solid #646cff;
-  border-bottom: none;
-  background-color: transparent;
-  color: inherit;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s;
-  cursor: pointer;
-}
-
-.tab-btn:hover {
-  background-color: rgba(100, 108, 255, 0.1);
-}
-
-.tab-btn.active {
-  background-color: #646cff;
-  color: white;
-}
-
-.sql-info {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  text-align: left;
-}
-
-.sql-info h2 {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.sql-info p {
-  margin: 0.5rem 0;
-  font-size: 1.1rem;
 }
 
 h1 {
