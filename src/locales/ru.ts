@@ -1,7 +1,9 @@
 export default {
   title: 'Конвертер Excel в SQL',
-  subtitle: 'Загрузите файл Excel для преобразования в SQL запросы',
+  subtitle: 'Конвертация между форматами Excel и SQL с автоматическим определением типов данных',
   uploadFile: 'Выберите файл',
+  excelToSql: 'Excel в SQL',
+  sqlToExcel: 'SQL в Excel',
   configureColumns: 'Настройка типов столбцов',
   tableName: 'Имя таблицы',
   tableNamePlaceholder: 'моя_таблица',
@@ -10,7 +12,12 @@ export default {
   generatedSQL: 'Сгенерированный SQL',
   copyToClipboard: 'Копировать в буфер',
   downloadSQL: 'Скачать SQL файл',
+  downloadExcel: 'Скачать Excel файл',
   copiedSuccess: 'SQL скопирован в буфер обмена!',
+  parsedData: 'Распарсенные данные SQL',
+  tableNameDetected: 'Обнаружено имя таблицы',
+  rowsFound: 'Найдено строк',
+  columnsFound: 'Найдено столбцов',
   columnTypes: {
     varchar: 'VARCHAR(255)',
     int: 'INT',
