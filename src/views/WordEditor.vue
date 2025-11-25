@@ -20,7 +20,13 @@
     </div>
 
     <div class="editor-wrapper">
-      <Vueditor v-model="content" ref="editor" />
+      <QuillEditor
+        v-model:content="content"
+        ref="editor"
+        contentType="html"
+        theme="snow"
+        :toolbar="toolbarOptions"
+      />
     </div>
 
     <button @click="downloadDocument" class="download-btn">
@@ -41,6 +47,21 @@ const { t } = useI18n()
 const editor = ref(null)
 const content = ref<string>('')
 const fileName = ref<string>('')
+
+const toolbarOptions = [
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  [{ 'font': [] }],
+  [{ 'size': ['small', false, 'large', 'huge'] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ 'color': [] }, { 'background': [] }],
+  [{ 'align': [] }],
+  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+  [{ 'indent': '-1'}, { 'indent': '+1' }],
+  [{ 'script': 'sub'}, { 'script': 'super' }],
+  ['blockquote', 'code-block'],
+  ['link'],
+  ['clean']
+]
 
 const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
@@ -279,6 +300,25 @@ p {
 .editor-wrapper {
   margin: 2rem 0;
   min-height: 500px;
+}
+
+.editor-wrapper :deep(.ql-container) {
+  min-height: 400px;
+  font-size: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.editor-wrapper :deep(.ql-editor) {
+  min-height: 400px;
+}
+
+.editor-wrapper :deep(.ql-toolbar) {
+  background-color: #f5f5f5;
+  border-radius: 8px 8px 0 0;
+}
+
+.editor-wrapper :deep(.ql-container) {
+  border-radius: 0 0 8px 8px;
 }
 
 .download-btn {
