@@ -3,6 +3,22 @@
     <h1>{{ t('pages.wordEditor.title') }}</h1>
     <p>{{ t('pages.wordEditor.desc') }}</p>
 
+    <div class="file-controls">
+      <label class="upload-btn">
+        <input
+          type="file"
+          accept=".docx"
+          @change="handleFileUpload"
+          style="display: none"
+        />
+        <span>📁 {{ t('pages.wordEditor.uploadFile') }}</span>
+      </label>
+      <span v-if="fileName" class="file-name">{{ fileName }}</span>
+      <button v-if="fileName" @click="clearDocument" class="clear-btn">
+        {{ t('pages.wordEditor.newDocument') }}
+      </button>
+    </div>
+
     <div class="editor-toolbar">
       <!-- Text Style -->
       <div class="toolbar-group">
@@ -174,11 +190,14 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx'
+// @ts-ignore
+import mammoth from 'mammoth'
 
 const { t } = useI18n()
 
 const editor = ref<HTMLElement | null>(null)
 const content = ref<string>('')
+const fileName = ref<string>('')
 
 const handleInput = () => {
   if (editor.value) {
@@ -228,6 +247,46 @@ const insertLink = () => {
   editor.value?.focus()
 }
 
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (!file) return
+
+  fileName.value = file.name
+
+  try {
+    const arrayBuffer = await file.arrayBuffer()
+    const result = await mammoth.convertToHtml({ arrayBuffer })
+
+    if (editor.value) {
+      editor.value.innerHTML = result.value
+      content.value = result.value
+    }
+
+    // Show any conversion messages/warnings
+    if (result.messages.length > 0) {
+      console.log('Conversion messages:', result.messages)
+    }
+  } catch (error) {
+    console.error('Error loading document:', error)
+    alert('Failed to load document. Please make sure it\'s a valid .docx file.')
+  }
+
+  // Reset file input
+  target.value = ''
+}
+
+const clearDocument = () => {
+  if (confirm(t('pages.wordEditor.confirmClear'))) {
+    if (editor.value) {
+      editor.value.innerHTML = ''
+      content.value = ''
+    }
+    fileName.value = ''
+  }
+}
+
 const downloadDocument = async () => {
   const text = editor.value?.innerText || t('pages.wordEditor.placeholder')
 
@@ -269,6 +328,55 @@ const downloadDocument = async () => {
 h1 {
   color: #646cff;
   margin-bottom: 0.5rem;
+}
+
+.file-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.upload-btn {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  background-color: #42b983;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: 500;
+}
+
+.upload-btn:hover {
+  background-color: #33a372;
+}
+
+.file-name {
+  color: #646cff;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background-color: rgba(100, 108, 255, 0.1);
+  border-radius: 4px;
+}
+
+.clear-btn {
+  padding: 0.6rem 1.5rem;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: 500;
+}
+
+.clear-btn:hover {
+  background-color: #ee5a5a;
 }
 
 .editor-toolbar {
@@ -429,6 +537,15 @@ h1 {
 }
 
 @media (prefers-color-scheme: dark) {
+  .file-controls {
+    background-color: #2a2a2a;
+  }
+
+  .file-name {
+    background-color: rgba(100, 108, 255, 0.2);
+    color: #a3abff;
+  }
+
   .editor-toolbar {
     background-color: #2a2a2a;
   }

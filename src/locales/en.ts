@@ -67,7 +67,10 @@ export default {
     wordEditor: {
       title: 'Online Word Editor',
       desc: 'Edit and create Word documents online',
-      placeholder: 'Start typing your document here...'
+      placeholder: 'Start typing your document here...',
+      uploadFile: 'Upload .docx File',
+      newDocument: 'New Document',
+      confirmClear: 'Are you sure you want to clear the document and start a new one?'
     }
   }
 }

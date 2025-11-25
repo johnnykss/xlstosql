@@ -67,7 +67,10 @@ export default {
     wordEditor: {
       title: 'Онлайн редактор Word',
       desc: 'Редактируйте и создавайте документы Word онлайн',
-      placeholder: 'Начните печатать здесь...'
+      placeholder: 'Начните печатать здесь...',
+      uploadFile: 'Загрузить файл .docx',
+      newDocument: 'Новый документ',
+      confirmClear: 'Вы уверены, что хотите очистить документ и начать новый?'
     }
   }
 }
