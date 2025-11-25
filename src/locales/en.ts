@@ -22,6 +22,12 @@ export default {
     text: 'TEXT',
     boolean: 'BOOLEAN'
   },
+  themes: {
+    light: 'Light Theme',
+    dark: 'Dark Theme',
+    warm: 'Warm Theme',
+    cold: 'Cold Theme'
+  },
   nav: {
     excelToSQL: 'Excel → SQL',
     excelToWord: 'Excel → Word',
