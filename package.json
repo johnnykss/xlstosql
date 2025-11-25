@@ -10,17 +10,18 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "docx": "^8.5.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
+    "mammoth": "^1.6.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^3.11.174",
     "vue": "^3.4.21",
     "vue-i18n": "^9.9.1",
     "vue-router": "^4.2.5",
-    "xlsx": "^0.18.5",
-    "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.2",
-    "docx": "^8.5.0",
-    "html2canvas": "^1.4.1",
-    "pdfjs-dist": "^3.11.174",
-    "pdf-lib": "^1.17.1",
-    "mammoth": "^1.6.0"
+    "vueditor": "^0.3.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
