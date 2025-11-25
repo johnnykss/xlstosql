@@ -96,7 +96,20 @@ const handleFileUpload = async (event: Event) => {
       }
     })
 
-    content.value = result.value
+    // Process HTML to ensure proper line breaks
+    let htmlContent = result.value
+
+    // Ensure empty paragraphs are preserved with &nbsp;
+    htmlContent = htmlContent.replace(/<p><\/p>/g, '<p><br></p>')
+    htmlContent = htmlContent.replace(/<p>\s*<\/p>/g, '<p><br></p>')
+
+    // Use Quill's clipboard to properly insert HTML content
+    if (editor.value) {
+      const quill = (editor.value as any).getQuill()
+      quill.clipboard.dangerouslyPasteHTML(htmlContent)
+    } else {
+      content.value = htmlContent
+    }
 
     // Show any conversion messages/warnings
     if (result.messages.length > 0) {
