@@ -38,8 +38,7 @@ export default {
     pdfToJPG: 'PDF → JPG',
     wordToPDF: 'Word → PDF',
     wordToJPG: 'Word → JPG',
-    wordEditor: 'Редактор Word',
-    pdfEditor: 'Редактор PDF'
+    wordEditor: 'Редактор Word'
   },
   common: {
     chooseFile: 'Выбрать файл',
@@ -80,26 +79,6 @@ export default {
       uploadFile: 'Загрузить файл .docx',
       newDocument: 'Новый документ',
       confirmClear: 'Вы уверены, что хотите очистить документ и начать новый?'
-    },
-    pdfEditor: {
-      title: 'Онлайн редактор PDF',
-      desc: 'Редактируйте и создавайте PDF документы онлайн',
-      placeholder: 'Начните печатать здесь...',
-      uploadFile: 'Загрузить PDF файл',
-      newDocument: 'Новый документ',
-      confirmClear: 'Вы уверены, что хотите очистить документ и начать новый?',
-      emptyDocument: 'Текст в PDF не найден',
-      textMode: 'Режим извлечения текста',
-      directMode: 'Режим прямого редактирования',
-      uploadToDirect: 'Загрузите PDF файл для добавления аннотаций и текста напрямую',
-      pdfPreview: 'Предпросмотр PDF',
-      addAnnotation: 'Добавить текстовую аннотацию',
-      annotationText: 'Введите текст для добавления',
-      page: 'Страница',
-      addToList: 'Добавить в список',
-      annotations: 'Аннотации',
-      applyAndDownload: 'Применить и скачать',
-      enterText: 'Пожалуйста, введите текст для аннотации'
     },
     wordToPDF: {
       title: 'Конвертер Word в PDF',

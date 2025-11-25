@@ -56,11 +56,6 @@ const routes: RouteRecordRaw[] = [
     path: '/word-to-jpg',
     name: 'WordToJPG',
     component: () => import('../views/WordToJPG.vue')
-  },
-  {
-    path: '/pdf-editor',
-    name: 'PDFEditor',
-    component: () => import('../views/PDFEditor.vue')
   }
 ]
 
