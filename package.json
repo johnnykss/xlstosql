@@ -1,7 +1,7 @@
 {
   "name": "xlstosql",
-  "version": "0.1.0",
-  "description": "Vue 3 converter from Excel files to SQL and vice versa",
+  "version": "0.2.0",
+  "description": "Vue 3 file converter: Excel, PDF, Word, and Image conversions",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,15 @@
   "dependencies": {
     "vue": "^3.4.21",
     "vue-i18n": "^9.9.1",
-    "xlsx": "^0.18.5"
+    "vue-router": "^4.2.5",
+    "xlsx": "^0.18.5",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
+    "docx": "^8.5.0",
+    "html2canvas": "^1.4.1",
+    "pdfjs-dist": "^3.11.174",
+    "pdf-lib": "^1.17.1",
+    "mammoth": "^1.6.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
@@ -30,8 +38,11 @@
     "vue3",
     "excel",
     "sql",
+    "pdf",
+    "word",
     "converter",
-    "xlsx"
+    "xlsx",
+    "docx"
   ],
   "author": "",
   "license": "ISC"

@@ -1,29 +1,58 @@
-# xlstosql
+# File Converter Suite
 
-Vue 3 Converter Excel to SQL
+Multi-format file converter built with Vue 3
 
-A modern Vue.js 3 application built with TypeScript and Vite for converting Excel files to SQL statements. Users can upload Excel files, configure column data types, and generate CREATE TABLE and INSERT statements.
+A comprehensive Vue.js 3 application built with TypeScript and Vite for converting between multiple file formats including Excel, PDF, Word, and images.
 
-## Features
+## Available Converters
 
-- Upload Excel files (.xlsx, .xls)
-- Automatic data type detection for columns (INT, BIGINT, DECIMAL, DATETIME, BOOLEAN, TEXT, VARCHAR)
-- Manual column type configuration
-- Custom table naming
-- Generate CREATE TABLE statements
-- Generate INSERT statements with proper value escaping
-- Copy to clipboard functionality
-- Download generated SQL files
-- Direct download option (generate and download without preview)
+### Excel Converters
+1. **Excel to SQL** - Convert Excel to SQL with automatic data type detection
+   - Automatic column type detection (INT, BIGINT, DECIMAL, DATETIME, BOOLEAN, TEXT, VARCHAR)
+   - Manual column type configuration
+   - Generate CREATE TABLE and INSERT statements
+   - Direct download option
+
+2. **Excel to Word** - Convert Excel spreadsheets to Word documents
+   - Preserves table structure
+   - Direct download as .docx
+
+3. **Excel to PDF** - Convert Excel to PDF documents
+   - Table formatting preserved
+   - Ready-to-print PDFs
+
+4. **Excel to JPG** - Convert Excel to image format
+   - Visual preview before download
+   - High-quality image export
+
+### PDF Converters
+5. **PDF to Word** - Extract content from PDF to Word (Coming Soon)
+6. **PDF to Excel** - Extract tables from PDF to Excel (Coming Soon)
+7. **PDF to JPG** - Convert PDF pages to images (Coming Soon)
+
+### Document Editor
+8. **Word Editor** - Online Word document editor
+   - Rich text editing
+   - Format text (Bold, Italic, Underline)
+   - Download as .docx
+
+## General Features
+
 - Multi-language support (English/Russian)
-- Modern UI with dark/light mode support
+- Modern responsive UI with dark/light mode
+- Client-side processing (no server uploads)
+- Fast and secure conversions
 
 ## Tech Stack
 
-- Vue 3 with Composition API
+- Vue 3 with Composition API & Vue Router
 - TypeScript
 - Vite
 - XLSX library for Excel parsing
+- jsPDF & jsPDF-AutoTable for PDF generation
+- docx for Word document generation
+- html2canvas for image conversion
+- pdfjs-dist for PDF processing
 - Vue I18n for internationalization
 
 ## Installation
@@ -66,23 +95,16 @@ npm run type-check
 
 ## Usage
 
-1. Click the file input to select an Excel file
-2. The application will automatically detect columns and their data types
-3. Review and adjust data types if needed
-4. Set the desired table name
-5. Click "Generate SQL" to view the SQL statements, or "Generate and Download" to download directly
-6. Copy to clipboard or download the generated SQL file
+1. Navigate to the desired converter using the top navigation menu
+2. Upload your file using the file picker
+3. Configure any available options (varies by converter)
+4. Click convert/generate to process the file
+5. Download the converted file
 
-## Column Types Supported
-
-- VARCHAR(255)
-- INT
-- BIGINT
-- DECIMAL(10,2)
-- DATE
-- DATETIME
-- TEXT
-- BOOLEAN
+### Excel to SQL Specific
+- Automatic data type detection
+- Manual column type adjustment
+- Supported types: VARCHAR, INT, BIGINT, DECIMAL, DATE, DATETIME, TEXT, BOOLEAN
 
 ## License
 
