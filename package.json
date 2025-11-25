@@ -10,6 +10,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@vueup/vue-quill": "^1.2.0",
     "docx": "^8.5.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
@@ -17,10 +18,10 @@
     "mammoth": "^1.6.0",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^3.11.174",
+    "quill": "^2.0.3",
     "vue": "^3.4.21",
     "vue-i18n": "^9.9.1",
     "vue-router": "^4.2.5",
-    "vueditor": "^0.3.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
