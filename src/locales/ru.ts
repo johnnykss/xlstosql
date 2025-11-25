@@ -88,7 +88,18 @@ export default {
       uploadFile: 'Загрузить PDF файл',
       newDocument: 'Новый документ',
       confirmClear: 'Вы уверены, что хотите очистить документ и начать новый?',
-      emptyDocument: 'Текст в PDF не найден'
+      emptyDocument: 'Текст в PDF не найден',
+      textMode: 'Режим извлечения текста',
+      directMode: 'Режим прямого редактирования',
+      uploadToDirect: 'Загрузите PDF файл для добавления аннотаций и текста напрямую',
+      pdfPreview: 'Предпросмотр PDF',
+      addAnnotation: 'Добавить текстовую аннотацию',
+      annotationText: 'Введите текст для добавления',
+      page: 'Страница',
+      addToList: 'Добавить в список',
+      annotations: 'Аннотации',
+      applyAndDownload: 'Применить и скачать',
+      enterText: 'Пожалуйста, введите текст для аннотации'
     },
     wordToPDF: {
       title: 'Конвертер Word в PDF',

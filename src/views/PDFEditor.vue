@@ -3,6 +3,23 @@
     <h1>{{ t('pages.pdfEditor.title') }}</h1>
     <p>{{ t('pages.pdfEditor.desc') }}</p>
 
+    <div class="mode-selector">
+      <button
+        @click="editorMode = 'text'"
+        :class="{ active: editorMode === 'text' }"
+        class="mode-btn"
+      >
+        📝 {{ t('pages.pdfEditor.textMode') }}
+      </button>
+      <button
+        @click="editorMode = 'direct'"
+        :class="{ active: editorMode === 'direct' }"
+        class="mode-btn"
+      >
+        ✏️ {{ t('pages.pdfEditor.directMode') }}
+      </button>
+    </div>
+
     <div class="file-controls">
       <label class="upload-btn">
         <input
@@ -173,17 +190,79 @@
       </div>
     </div>
 
-    <div
-      ref="editor"
-      class="editor"
-      contenteditable="true"
-      @input="handleInput"
-      :placeholder="t('pages.pdfEditor.placeholder')"
-    ></div>
+    <!-- Text Extraction Mode -->
+    <div v-if="editorMode === 'text'">
+      <div
+        ref="editor"
+        class="editor"
+        contenteditable="true"
+        @input="handleInput"
+        :placeholder="t('pages.pdfEditor.placeholder')"
+      ></div>
 
-    <button @click="downloadDocument" class="download-btn">
-      {{ t('common.download') }}
-    </button>
+      <button @click="downloadDocument" class="download-btn">
+        {{ t('common.download') }}
+      </button>
+    </div>
+
+    <!-- Direct PDF Editing Mode -->
+    <div v-if="editorMode === 'direct'" class="direct-edit-mode">
+      <div v-if="!pdfFile" class="info-box">
+        <p>{{ t('pages.pdfEditor.uploadToDirect') }}</p>
+      </div>
+
+      <div v-if="pdfFile && pdfPreviewUrl" class="direct-editor">
+        <div class="pdf-preview">
+          <h3>{{ t('pages.pdfEditor.pdfPreview') }}</h3>
+          <embed :src="pdfPreviewUrl" type="application/pdf" width="100%" height="600px" />
+        </div>
+
+        <div class="annotation-controls">
+          <h3>{{ t('pages.pdfEditor.addAnnotation') }}</h3>
+          <div class="annotation-form">
+            <input
+              v-model="annotationText"
+              type="text"
+              :placeholder="t('pages.pdfEditor.annotationText')"
+              class="annotation-input"
+            />
+            <div class="position-inputs">
+              <label>
+                X:
+                <input v-model.number="annotationX" type="number" min="0" max="595" />
+              </label>
+              <label>
+                Y:
+                <input v-model.number="annotationY" type="number" min="0" max="841" />
+              </label>
+              <label>
+                {{ t('pages.pdfEditor.page') }}:
+                <input v-model.number="annotationPage" type="number" min="1" :max="totalPages" />
+              </label>
+            </div>
+            <button @click="addAnnotation" class="add-annotation-btn">
+              {{ t('pages.pdfEditor.addToList') }}
+            </button>
+          </div>
+
+          <div v-if="annotations.length > 0" class="annotations-list">
+            <h4>{{ t('pages.pdfEditor.annotations') }} ({{ annotations.length }})</h4>
+            <div v-for="(ann, index) in annotations" :key="index" class="annotation-item">
+              <span>{{ ann.text }} (X:{{ ann.x }}, Y:{{ ann.y }}, P:{{ ann.page + 1 }})</span>
+              <button @click="removeAnnotation(index)" class="remove-btn">×</button>
+            </div>
+          </div>
+
+          <button
+            v-if="annotations.length > 0"
+            @click="applyAnnotationsAndDownload"
+            class="download-btn"
+          >
+            {{ t('pages.pdfEditor.applyAndDownload') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -195,14 +274,29 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import * as pdfjsLib from 'pdfjs-dist/build/pdf'
 // @ts-ignore
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?url'
+import { usePdfEditor } from '../composables/usePdfEditor'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
 
 const { t } = useI18n()
+const { addTextToPdf, createPdfFromText } = usePdfEditor()
 
+// Common state
 const editor = ref<HTMLElement | null>(null)
 const content = ref<string>('')
 const fileName = ref<string>('')
+const editorMode = ref<'text' | 'direct'>('text')
+
+// Direct mode state
+const pdfFile = ref<File | null>(null)
+const pdfPreviewUrl = ref<string>('')
+const totalPages = ref<number>(1)
+const annotationText = ref<string>('')
+const annotationX = ref<number>(50)
+const annotationY = ref<number>(750)
+const annotationPage = ref<number>(1)
+const annotations = ref<Array<{ text: string; x: number; y: number; page: number }>>([])
+
 
 const handleInput = () => {
   if (editor.value) {
@@ -240,28 +334,38 @@ const handleFileUpload = async (event: Event) => {
   if (!file) return
 
   fileName.value = file.name
+  pdfFile.value = file
 
   try {
     const arrayBuffer = await file.arrayBuffer()
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+    totalPages.value = pdf.numPages
 
-    let fullText = ''
+    if (editorMode.value === 'text') {
+      // Text extraction mode
+      let fullText = ''
 
-    // Extract text from all pages
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i)
-      const textContent = await page.getTextContent()
-      const pageText = textContent.items.map((item: any) => item.str).join(' ')
-      fullText += `<p>${pageText}</p>`
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i)
+        const textContent = await page.getTextContent()
+        const pageText = textContent.items.map((item: any) => item.str).join(' ')
+        fullText += `<p>${pageText}</p>`
 
-      if (i < pdf.numPages) {
-        fullText += '<hr style="margin: 2rem 0; border: 1px solid #ddd;">'
+        if (i < pdf.numPages) {
+          fullText += '<hr style="margin: 2rem 0; border: 1px solid #ddd;">'
+        }
       }
-    }
 
-    if (editor.value) {
-      editor.value.innerHTML = fullText || `<p>${t('pages.pdfEditor.emptyDocument')}</p>`
-      content.value = editor.value.innerHTML
+      if (editor.value) {
+        editor.value.innerHTML = fullText || `<p>${t('pages.pdfEditor.emptyDocument')}</p>`
+        content.value = editor.value.innerHTML
+      }
+    } else {
+      // Direct editing mode - create preview
+      if (pdfPreviewUrl.value) {
+        URL.revokeObjectURL(pdfPreviewUrl.value)
+      }
+      pdfPreviewUrl.value = URL.createObjectURL(file)
     }
   } catch (error) {
     console.error('Error loading PDF:', error)
@@ -279,6 +383,53 @@ const clearDocument = () => {
       content.value = ''
     }
     fileName.value = ''
+    pdfFile.value = null
+    if (pdfPreviewUrl.value) {
+      URL.revokeObjectURL(pdfPreviewUrl.value)
+      pdfPreviewUrl.value = ''
+    }
+    annotations.value = []
+  }
+}
+
+// Direct mode functions
+const addAnnotation = () => {
+  if (!annotationText.value.trim()) {
+    alert(t('pages.pdfEditor.enterText'))
+    return
+  }
+
+  annotations.value.push({
+    text: annotationText.value,
+    x: annotationX.value,
+    y: annotationY.value,
+    page: annotationPage.value - 1 // Convert to 0-based index
+  })
+
+  // Reset form
+  annotationText.value = ''
+}
+
+const removeAnnotation = (index: number) => {
+  annotations.value.splice(index, 1)
+}
+
+const applyAnnotationsAndDownload = async () => {
+  if (!pdfFile.value || annotations.value.length === 0) return
+
+  try {
+    const blob = await addTextToPdf(pdfFile.value, annotations.value)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName.value.replace(/\.pdf$/i, '_edited.pdf')
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Error applying annotations:', error)
+    alert('Failed to apply annotations to PDF.')
   }
 }
 
@@ -286,76 +437,7 @@ const downloadDocument = async () => {
   const text = editor.value?.innerText || t('pages.pdfEditor.placeholder')
 
   try {
-    // Create a new PDF document
-    const pdfDoc = await PDFDocument.create()
-    const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman)
-
-    // Split text into lines and pages
-    const lines = text.split('\n')
-    const pageWidth = 595.28 // A4 width in points
-    const pageHeight = 841.89 // A4 height in points
-    const margin = 50
-    const fontSize = 12
-    const lineHeight = fontSize * 1.5
-    const maxLinesPerPage = Math.floor((pageHeight - 2 * margin) / lineHeight)
-
-    let currentPage = pdfDoc.addPage([pageWidth, pageHeight])
-    let yPosition = pageHeight - margin
-    let lineCount = 0
-
-    for (const line of lines) {
-      if (lineCount >= maxLinesPerPage) {
-        currentPage = pdfDoc.addPage([pageWidth, pageHeight])
-        yPosition = pageHeight - margin
-        lineCount = 0
-      }
-
-      // Handle long lines by wrapping
-      const maxWidth = pageWidth - 2 * margin
-      const words = line.split(' ')
-      let currentLine = ''
-
-      for (const word of words) {
-        const testLine = currentLine + (currentLine ? ' ' : '') + word
-        const textWidth = timesRomanFont.widthOfTextAtSize(testLine, fontSize)
-
-        if (textWidth > maxWidth && currentLine) {
-          currentPage.drawText(currentLine, {
-            x: margin,
-            y: yPosition,
-            size: fontSize,
-            font: timesRomanFont,
-            color: rgb(0, 0, 0)
-          })
-          yPosition -= lineHeight
-          lineCount++
-          currentLine = word
-
-          if (lineCount >= maxLinesPerPage) {
-            currentPage = pdfDoc.addPage([pageWidth, pageHeight])
-            yPosition = pageHeight - margin
-            lineCount = 0
-          }
-        } else {
-          currentLine = testLine
-        }
-      }
-
-      if (currentLine) {
-        currentPage.drawText(currentLine, {
-          x: margin,
-          y: yPosition,
-          size: fontSize,
-          font: timesRomanFont,
-          color: rgb(0, 0, 0)
-        })
-        yPosition -= lineHeight
-        lineCount++
-      }
-    }
-
-    const pdfBytes = await pdfDoc.save()
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+    const blob = await createPdfFromText(text)
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -386,6 +468,41 @@ h1 {
 p {
   color: #646cff;
   margin-bottom: 1.5rem;
+}
+
+.mode-selector {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  justify-content: center;
+}
+
+.mode-btn {
+  padding: 0.75rem 2rem;
+  border: 2px solid #ddd;
+  background-color: white;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.mode-btn:hover {
+  background-color: #646cff;
+  color: white;
+  border-color: #646cff;
+}
+
+.mode-btn.active {
+  background-color: #646cff;
+  color: white;
+  border-color: #646cff;
+  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.3);
 }
 
 .file-controls {
@@ -588,6 +705,151 @@ p {
 
 .download-btn:hover {
   background-color: #5558dd;
+}
+
+/* Direct Edit Mode Styles */
+.direct-edit-mode {
+  margin-top: 2rem;
+}
+
+.info-box {
+  padding: 2rem;
+  background-color: #f0f9ff;
+  border: 2px dashed #0ea5e9;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.info-box p {
+  color: #075985;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.direct-editor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.pdf-preview h3,
+.annotation-controls h3 {
+  color: #213547;
+  margin-bottom: 1rem;
+}
+
+.pdf-preview embed {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.annotation-controls {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.annotation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.annotation-input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.position-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.position-inputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #213547;
+}
+
+.position-inputs input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.add-annotation-btn {
+  padding: 0.75rem;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.add-annotation-btn:hover {
+  background-color: #33a372;
+}
+
+.annotations-list {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.annotations-list h4 {
+  color: #213547;
+  margin-bottom: 1rem;
+}
+
+.annotation-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9f9f9;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.annotation-item span {
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.remove-btn {
+  width: 30px;
+  height: 30px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: background-color 0.3s;
+  line-height: 1;
+}
+
+.remove-btn:hover {
+  background-color: #ee5a5a;
+}
+
+@media (max-width: 1024px) {
+  .direct-editor {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

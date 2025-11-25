@@ -88,7 +88,18 @@ export default {
       uploadFile: 'Upload PDF File',
       newDocument: 'New Document',
       confirmClear: 'Are you sure you want to clear the document and start a new one?',
-      emptyDocument: 'No text found in PDF'
+      emptyDocument: 'No text found in PDF',
+      textMode: 'Text Extraction Mode',
+      directMode: 'Direct Edit Mode',
+      uploadToDirect: 'Upload a PDF file to add annotations and text directly',
+      pdfPreview: 'PDF Preview',
+      addAnnotation: 'Add Text Annotation',
+      annotationText: 'Enter text to add',
+      page: 'Page',
+      addToList: 'Add to List',
+      annotations: 'Annotations',
+      applyAndDownload: 'Apply & Download',
+      enterText: 'Please enter text for the annotation'
     },
     wordToPDF: {
       title: 'Word to PDF Converter',
