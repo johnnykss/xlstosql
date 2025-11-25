@@ -20,11 +20,7 @@
     </div>
 
     <div class="editor-wrapper">
-      <Vueditor
-        v-model="content"
-        :config="editorConfig"
-        ref="editor"
-      />
+      <Vueditor v-model="content" ref="editor" />
     </div>
 
     <button @click="downloadDocument" class="download-btn">
@@ -39,39 +35,12 @@ import { useI18n } from 'vue-i18n'
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx'
 // @ts-ignore
 import mammoth from 'mammoth'
-// @ts-ignore
-import Vueditor from 'vueditor'
-import 'vueditor/dist/style/vueditor.min.css'
 
 const { t } = useI18n()
 
 const editor = ref(null)
 const content = ref<string>('')
 const fileName = ref<string>('')
-
-const editorConfig = {
-  toolbar: [
-    'removeFormat', 'undo', 'redo', '|',
-    'bold', 'italic', 'underline', 'strikeThrough', '|',
-    'fontName', 'fontSize', 'foreColor', 'backColor', '|',
-    'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', '|',
-    'insertOrderedList', 'insertUnorderedList', 'indent', 'outdent', '|',
-    'link', 'unlink', 'table', '|',
-    'formatBlock', 'subscript', 'superscript', 'hr', '|',
-    'sourceCode', 'fullscreen'
-  ],
-  fontName: [
-    { val: 'Arial', abbr: 'Arial' },
-    { val: 'Calibri', abbr: 'Calibri' },
-    { val: 'Georgia', abbr: 'Georgia' },
-    { val: 'Times New Roman', abbr: 'Times' },
-    { val: 'Verdana', abbr: 'Verdana' }
-  ],
-  fontSize: ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px'],
-  uploadUrl: '',
-  id: 'word-editor',
-  classList: ['word-editor-class']
-}
 
 const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
