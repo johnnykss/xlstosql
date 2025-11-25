@@ -53,6 +53,8 @@ const navItems = [
   { path: '/pdf-to-word', label: 'nav.pdfToWord' },
   { path: '/pdf-to-excel', label: 'nav.pdfToExcel' },
   { path: '/pdf-to-jpg', label: 'nav.pdfToJPG' },
+  { path: '/word-to-pdf', label: 'nav.wordToPDF' },
+  { path: '/word-to-jpg', label: 'nav.wordToJPG' },
   { path: '/word-editor', label: 'nav.wordEditor' },
   { path: '/pdf-editor', label: 'nav.pdfEditor' }
 ]

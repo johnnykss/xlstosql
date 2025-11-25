@@ -48,6 +48,16 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/WordEditor.vue')
   },
   {
+    path: '/word-to-pdf',
+    name: 'WordToPDF',
+    component: () => import('../views/WordToPDF.vue')
+  },
+  {
+    path: '/word-to-jpg',
+    name: 'WordToJPG',
+    component: () => import('../views/WordToJPG.vue')
+  },
+  {
     path: '/pdf-editor',
     name: 'PDFEditor',
     component: () => import('../views/PDFEditor.vue')

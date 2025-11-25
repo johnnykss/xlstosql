@@ -30,6 +30,8 @@ export default {
     pdfToWord: 'PDF → Word',
     pdfToExcel: 'PDF → Excel',
     pdfToJPG: 'PDF → JPG',
+    wordToPDF: 'Word → PDF',
+    wordToJPG: 'Word → JPG',
     wordEditor: 'Редактор Word',
     pdfEditor: 'Редактор PDF'
   },
@@ -81,6 +83,14 @@ export default {
       newDocument: 'Новый документ',
       confirmClear: 'Вы уверены, что хотите очистить документ и начать новый?',
       emptyDocument: 'Текст в PDF не найден'
+    },
+    wordToPDF: {
+      title: 'Конвертер Word в PDF',
+      desc: 'Конвертируйте документы Word в формат PDF'
+    },
+    wordToJPG: {
+      title: 'Конвертер Word в JPG',
+      desc: 'Конвертируйте документы Word в изображения JPG'
     }
   }
 }
