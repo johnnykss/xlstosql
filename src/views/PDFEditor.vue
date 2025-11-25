@@ -1,34 +1,34 @@
 <template>
-  <div class="editor-container">
-    <h1>{{ t('pages.wordEditor.title') }}</h1>
-    <p>{{ t('pages.wordEditor.desc') }}</p>
+  <div class="pdf-editor-page">
+    <h1>{{ t('pages.pdfEditor.title') }}</h1>
+    <p>{{ t('pages.pdfEditor.desc') }}</p>
 
     <div class="file-controls">
       <label class="upload-btn">
         <input
           type="file"
-          accept=".docx"
+          accept=".pdf"
           @change="handleFileUpload"
           style="display: none"
         />
-        <span>📁 {{ t('pages.wordEditor.uploadFile') }}</span>
+        <span>📁 {{ t('pages.pdfEditor.uploadFile') }}</span>
       </label>
       <span v-if="fileName" class="file-name">{{ fileName }}</span>
       <button v-if="fileName" @click="clearDocument" class="clear-btn">
-        {{ t('pages.wordEditor.newDocument') }}
+        {{ t('pages.pdfEditor.newDocument') }}
       </button>
     </div>
 
     <div class="editor-toolbar">
       <!-- Text Style -->
       <div class="toolbar-group">
-        <button @click="applyFormat('bold')" class="tool-btn" title="Bold (Ctrl+B)">
+        <button @click="applyFormat('bold')" class="tool-btn" title="Bold">
           <strong>B</strong>
         </button>
-        <button @click="applyFormat('italic')" class="tool-btn" title="Italic (Ctrl+I)">
+        <button @click="applyFormat('italic')" class="tool-btn" title="Italic">
           <em>I</em>
         </button>
-        <button @click="applyFormat('underline')" class="tool-btn" title="Underline (Ctrl+U)">
+        <button @click="applyFormat('underline')" class="tool-btn" title="Underline">
           <u>U</u>
         </button>
         <button @click="applyFormat('strikeThrough')" class="tool-btn" title="Strikethrough">
@@ -38,30 +38,29 @@
 
       <div class="toolbar-divider"></div>
 
-      <!-- Headings -->
+      <!-- Font Size -->
       <div class="toolbar-group">
-        <select @change="applyHeading($event)" class="tool-select">
-          <option value="">Normal</option>
-          <option value="h1">Heading 1</option>
-          <option value="h2">Heading 2</option>
-          <option value="h3">Heading 3</option>
-          <option value="h4">Heading 4</option>
-          <option value="h5">Heading 5</option>
-          <option value="h6">Heading 6</option>
+        <select @change="applyFontSize" class="font-size-select">
+          <option value="1">Small</option>
+          <option value="3" selected>Normal</option>
+          <option value="5">Large</option>
+          <option value="7">Huge</option>
         </select>
       </div>
 
       <div class="toolbar-divider"></div>
 
-      <!-- Font Size -->
+      <!-- Headings -->
       <div class="toolbar-group">
-        <select @change="applyFontSize($event)" class="tool-select">
-          <option value="">Font Size</option>
-          <option value="1">Small</option>
-          <option value="3">Normal</option>
-          <option value="5">Large</option>
-          <option value="7">Huge</option>
-        </select>
+        <button @click="applyHeading('h1')" class="tool-btn" title="Heading 1">
+          H1
+        </button>
+        <button @click="applyHeading('h2')" class="tool-btn" title="Heading 2">
+          H2
+        </button>
+        <button @click="applyHeading('h3')" class="tool-btn" title="Heading 3">
+          H3
+        </button>
       </div>
 
       <div class="toolbar-divider"></div>
@@ -136,52 +135,40 @@
 
       <div class="toolbar-divider"></div>
 
-      <!-- Script -->
+      <!-- Additional -->
       <div class="toolbar-group">
         <button @click="applyFormat('superscript')" class="tool-btn" title="Superscript">
-          X<sup>2</sup>
+          x²
         </button>
         <button @click="applyFormat('subscript')" class="tool-btn" title="Subscript">
-          X<sub>2</sub>
+          x₂
         </button>
-      </div>
-
-      <div class="toolbar-divider"></div>
-
-      <!-- Indentation -->
-      <div class="toolbar-group">
-        <button @click="applyFormat('indent')" class="tool-btn" title="Increase Indent">
-          →|
-        </button>
-        <button @click="applyFormat('outdent')" class="tool-btn" title="Decrease Indent">
-          |←
-        </button>
-      </div>
-
-      <div class="toolbar-divider"></div>
-
-      <!-- Insert -->
-      <div class="toolbar-group">
-        <button @click="insertLink" class="tool-btn" title="Insert Link">
-          🔗
-        </button>
-        <button @click="applyFormat('insertHorizontalRule')" class="tool-btn" title="Insert Line">
+        <button @click="applyFormat('insertHorizontalRule')" class="tool-btn" title="Horizontal Line">
           ―
         </button>
       </div>
 
       <div class="toolbar-divider"></div>
 
-      <!-- Undo/Redo & Clear -->
+      <!-- Indent -->
       <div class="toolbar-group">
-        <button @click="applyFormat('undo')" class="tool-btn" title="Undo (Ctrl+Z)">
+        <button @click="applyFormat('indent')" class="tool-btn" title="Indent">
+          →
+        </button>
+        <button @click="applyFormat('outdent')" class="tool-btn" title="Outdent">
+          ←
+        </button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- Undo/Redo -->
+      <div class="toolbar-group">
+        <button @click="applyFormat('undo')" class="tool-btn" title="Undo">
           ↶
         </button>
-        <button @click="applyFormat('redo')" class="tool-btn" title="Redo (Ctrl+Y)">
+        <button @click="applyFormat('redo')" class="tool-btn" title="Redo">
           ↷
-        </button>
-        <button @click="applyFormat('removeFormat')" class="tool-btn" title="Clear Formatting">
-          ✕
         </button>
       </div>
     </div>
@@ -191,23 +178,25 @@
       class="editor"
       contenteditable="true"
       @input="handleInput"
-      :placeholder="t('pages.wordEditor.placeholder')"
+      :placeholder="t('pages.pdfEditor.placeholder')"
     ></div>
 
-    <div class="actions">
-      <button @click="downloadDocument" class="download-btn">
-        {{ t('common.download') }} (.docx)
-      </button>
-    </div>
+    <button @click="downloadDocument" class="download-btn">
+      {{ t('common.download') }}
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx'
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 // @ts-ignore
-import mammoth from 'mammoth'
+import * as pdfjsLib from 'pdfjs-dist/build/pdf'
+// @ts-ignore
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?url'
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
 
 const { t } = useI18n()
 
@@ -221,30 +210,19 @@ const handleInput = () => {
   }
 }
 
-const applyFormat = (format: string) => {
-  document.execCommand(format, false)
+const applyFormat = (command: string) => {
+  document.execCommand(command, false)
   editor.value?.focus()
 }
 
-const applyHeading = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  const heading = target.value
-  if (heading) {
-    document.execCommand('formatBlock', false, heading)
-  } else {
-    document.execCommand('formatBlock', false, 'p')
-  }
-  target.value = ''
+const applyHeading = (tag: string) => {
+  document.execCommand('formatBlock', false, tag)
   editor.value?.focus()
 }
 
 const applyFontSize = (event: Event) => {
   const target = event.target as HTMLSelectElement
-  const size = target.value
-  if (size) {
-    document.execCommand('fontSize', false, size)
-  }
-  target.value = ''
+  document.execCommand('fontSize', false, target.value)
   editor.value?.focus()
 }
 
@@ -252,14 +230,6 @@ const applyColor = (event: Event, command: string) => {
   const target = event.target as HTMLInputElement
   const color = target.value
   document.execCommand(command, false, color)
-  editor.value?.focus()
-}
-
-const insertLink = () => {
-  const url = prompt('Enter the link URL:')
-  if (url) {
-    document.execCommand('createLink', false, url)
-  }
   editor.value?.focus()
 }
 
@@ -273,41 +243,29 @@ const handleFileUpload = async (event: Event) => {
 
   try {
     const arrayBuffer = await file.arrayBuffer()
-    const result = await mammoth.convertToHtml({
-      arrayBuffer,
-      options: {
-        styleMap: [
-          "p[style-name='Normal'] => p:fresh",
-          "p[style-name='Heading 1'] => h1:fresh",
-          "p[style-name='Heading 2'] => h2:fresh",
-          "p[style-name='Heading 3'] => h3:fresh",
-          "p[style-name='Heading 4'] => h4:fresh",
-          "p[style-name='Heading 5'] => h5:fresh",
-          "p[style-name='Heading 6'] => h6:fresh"
-        ],
-        includeDefaultStyleMap: true,
-        convertImage: mammoth.images.inline(function(image: any) {
-          return image.read("base64").then(function(imageBuffer: string) {
-            return {
-              src: "data:" + image.contentType + ";base64," + imageBuffer
-            }
-          })
-        })
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+
+    let fullText = ''
+
+    // Extract text from all pages
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i)
+      const textContent = await page.getTextContent()
+      const pageText = textContent.items.map((item: any) => item.str).join(' ')
+      fullText += `<p>${pageText}</p>`
+
+      if (i < pdf.numPages) {
+        fullText += '<hr style="margin: 2rem 0; border: 1px solid #ddd;">'
       }
-    })
+    }
 
     if (editor.value) {
-      editor.value.innerHTML = result.value
-      content.value = result.value
-    }
-
-    // Show any conversion messages/warnings
-    if (result.messages.length > 0) {
-      console.log('Conversion messages:', result.messages)
+      editor.value.innerHTML = fullText || `<p>${t('pages.pdfEditor.emptyDocument')}</p>`
+      content.value = editor.value.innerHTML
     }
   } catch (error) {
-    console.error('Error loading document:', error)
-    alert('Failed to load document. Please make sure it\'s a valid .docx file.')
+    console.error('Error loading PDF:', error)
+    alert('Failed to load PDF. Please make sure it\'s a valid PDF file.')
   }
 
   // Reset file input
@@ -315,7 +273,7 @@ const handleFileUpload = async (event: Event) => {
 }
 
 const clearDocument = () => {
-  if (confirm(t('pages.wordEditor.confirmClear'))) {
+  if (confirm(t('pages.pdfEditor.confirmClear'))) {
     if (editor.value) {
       editor.value.innerHTML = ''
       content.value = ''
@@ -325,46 +283,109 @@ const clearDocument = () => {
 }
 
 const downloadDocument = async () => {
-  const text = editor.value?.innerText || t('pages.wordEditor.placeholder')
+  const text = editor.value?.innerText || t('pages.pdfEditor.placeholder')
 
-  // Split by lines and create paragraphs
-  const lines = text.split('\n').filter(line => line.trim())
+  try {
+    // Create a new PDF document
+    const pdfDoc = await PDFDocument.create()
+    const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman)
 
-  const paragraphs = lines.map(line =>
-    new Paragraph({
-      children: [new TextRun(line)]
-    })
-  )
+    // Split text into lines and pages
+    const lines = text.split('\n')
+    const pageWidth = 595.28 // A4 width in points
+    const pageHeight = 841.89 // A4 height in points
+    const margin = 50
+    const fontSize = 12
+    const lineHeight = fontSize * 1.5
+    const maxLinesPerPage = Math.floor((pageHeight - 2 * margin) / lineHeight)
 
-  const doc = new Document({
-    sections: [{
-      children: paragraphs.length > 0 ? paragraphs : [
-        new Paragraph({
-          children: [new TextRun(text)]
+    let currentPage = pdfDoc.addPage([pageWidth, pageHeight])
+    let yPosition = pageHeight - margin
+    let lineCount = 0
+
+    for (const line of lines) {
+      if (lineCount >= maxLinesPerPage) {
+        currentPage = pdfDoc.addPage([pageWidth, pageHeight])
+        yPosition = pageHeight - margin
+        lineCount = 0
+      }
+
+      // Handle long lines by wrapping
+      const maxWidth = pageWidth - 2 * margin
+      const words = line.split(' ')
+      let currentLine = ''
+
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word
+        const textWidth = timesRomanFont.widthOfTextAtSize(testLine, fontSize)
+
+        if (textWidth > maxWidth && currentLine) {
+          currentPage.drawText(currentLine, {
+            x: margin,
+            y: yPosition,
+            size: fontSize,
+            font: timesRomanFont,
+            color: rgb(0, 0, 0)
+          })
+          yPosition -= lineHeight
+          lineCount++
+          currentLine = word
+
+          if (lineCount >= maxLinesPerPage) {
+            currentPage = pdfDoc.addPage([pageWidth, pageHeight])
+            yPosition = pageHeight - margin
+            lineCount = 0
+          }
+        } else {
+          currentLine = testLine
+        }
+      }
+
+      if (currentLine) {
+        currentPage.drawText(currentLine, {
+          x: margin,
+          y: yPosition,
+          size: fontSize,
+          font: timesRomanFont,
+          color: rgb(0, 0, 0)
         })
-      ]
-    }]
-  })
+        yPosition -= lineHeight
+        lineCount++
+      }
+    }
 
-  const blob = await Packer.toBlob(doc)
-  const url = window.URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'document.docx'
-  a.click()
-  window.URL.revokeObjectURL(url)
+    const pdfBytes = await pdfDoc.save()
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName.value ? fileName.value.replace(/\.[^/.]+$/, '') + '_edited.pdf' : 'document.pdf'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Error creating PDF:', error)
+    alert('Failed to create PDF. Please try again.')
+  }
 }
 </script>
 
 <style scoped>
-.editor-container {
+.pdf-editor-page {
+  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 h1 {
-  color: #646cff;
+  color: #213547;
   margin-bottom: 0.5rem;
+}
+
+p {
+  color: #646cff;
+  margin-bottom: 1.5rem;
 }
 
 .file-controls {
@@ -460,28 +481,17 @@ h1 {
   border-color: #646cff;
 }
 
-.tool-btn:active {
-  transform: scale(0.95);
-}
-
-.tool-select {
+.font-size-select {
   padding: 0.5rem;
   border: 1px solid #ddd;
-  background-color: white;
   border-radius: 4px;
+  background-color: white;
   cursor: pointer;
-  font-size: 14px;
-  min-width: 120px;
+  transition: all 0.3s;
 }
 
-.tool-select:hover {
+.font-size-select:hover {
   border-color: #646cff;
-}
-
-.color-picker-label {
-  position: relative;
-  cursor: pointer;
-  display: inline-block;
 }
 
 .color-input {
@@ -491,10 +501,13 @@ h1 {
   height: 0;
 }
 
+.color-picker-label {
+  cursor: pointer;
+  display: inline-block;
+}
+
 .color-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   min-width: 36px;
   height: 36px;
   padding: 0.5rem;
@@ -544,7 +557,13 @@ h1 {
   margin: 0.83em 0;
 }
 
-.editor ul, .editor ol {
+.editor p {
+  margin: 1em 0;
+  color: #213547;
+}
+
+.editor ul,
+.editor ol {
   margin: 1em 0;
   padding-left: 2em;
 }
@@ -554,23 +573,21 @@ h1 {
   text-decoration: underline;
 }
 
-.actions {
-  margin-top: 2rem;
-}
-
 .download-btn {
-  padding: 0.8rem 2rem;
+  margin-top: 1rem;
+  padding: 0.75rem 2rem;
   background-color: #646cff;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 1.1rem;
   cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
   transition: background-color 0.3s;
 }
 
 .download-btn:hover {
-  background-color: #535bf2;
+  background-color: #5558dd;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -588,53 +605,48 @@ h1 {
   }
 
   .toolbar-divider {
-    background-color: #444;
+    background-color: #555;
   }
 
-  .tool-btn,
-  .tool-select {
+  .tool-btn {
     background-color: #1a1a1a;
-    color: #e0e0e0;
-    border-color: #3a3a3a;
+    border-color: #555;
+    color: #fff;
   }
 
   .tool-btn:hover {
     background-color: #646cff;
-    color: white;
+    border-color: #646cff;
+  }
+
+  .font-size-select {
+    background-color: #1a1a1a;
+    border-color: #555;
+    color: #fff;
   }
 
   .color-btn {
     background-color: #1a1a1a;
-    color: #e0e0e0;
-    border-color: #3a3a3a;
+    border-color: #555;
+    color: #fff;
   }
 
   .editor {
     background-color: #1a1a1a;
-    color: #e0e0e0;
-    border-color: #3a3a3a;
-  }
-}
-
-@media (max-width: 768px) {
-  .editor-toolbar {
-    padding: 0.5rem;
+    border-color: #555;
+    color: #fff;
   }
 
-  .tool-btn {
-    min-width: 32px;
-    height: 32px;
-    padding: 0.25rem;
-    font-size: 12px;
+  .editor p {
+    color: #fff;
   }
 
-  .tool-select {
-    min-width: 100px;
-    font-size: 12px;
+  h1 {
+    color: #fff;
   }
 
-  .toolbar-divider {
-    display: none;
+  p {
+    color: #a3abff;
   }
 }
 </style>

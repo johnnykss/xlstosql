@@ -30,7 +30,8 @@ export default {
     pdfToWord: 'PDF → Word',
     pdfToExcel: 'PDF → Excel',
     pdfToJPG: 'PDF → JPG',
-    wordEditor: 'Word Editor'
+    wordEditor: 'Word Editor',
+    pdfEditor: 'PDF Editor'
   },
   common: {
     chooseFile: 'Choose File',
@@ -71,6 +72,15 @@ export default {
       uploadFile: 'Upload .docx File',
       newDocument: 'New Document',
       confirmClear: 'Are you sure you want to clear the document and start a new one?'
+    },
+    pdfEditor: {
+      title: 'Online PDF Editor',
+      desc: 'Edit and create PDF documents online',
+      placeholder: 'Start typing your document here...',
+      uploadFile: 'Upload PDF File',
+      newDocument: 'New Document',
+      confirmClear: 'Are you sure you want to clear the document and start a new one?',
+      emptyDocument: 'No text found in PDF'
     }
   }
 }

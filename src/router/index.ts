@@ -46,6 +46,11 @@ const routes: RouteRecordRaw[] = [
     path: '/word-editor',
     name: 'WordEditor',
     component: () => import('../views/WordEditor.vue')
+  },
+  {
+    path: '/pdf-editor',
+    name: 'PDFEditor',
+    component: () => import('../views/PDFEditor.vue')
   }
 ]
 

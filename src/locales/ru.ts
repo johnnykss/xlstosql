@@ -30,7 +30,8 @@ export default {
     pdfToWord: 'PDF → Word',
     pdfToExcel: 'PDF → Excel',
     pdfToJPG: 'PDF → JPG',
-    wordEditor: 'Редактор Word'
+    wordEditor: 'Редактор Word',
+    pdfEditor: 'Редактор PDF'
   },
   common: {
     chooseFile: 'Выбрать файл',
@@ -71,6 +72,15 @@ export default {
       uploadFile: 'Загрузить файл .docx',
       newDocument: 'Новый документ',
       confirmClear: 'Вы уверены, что хотите очистить документ и начать новый?'
+    },
+    pdfEditor: {
+      title: 'Онлайн редактор PDF',
+      desc: 'Редактируйте и создавайте PDF документы онлайн',
+      placeholder: 'Начните печатать здесь...',
+      uploadFile: 'Загрузить PDF файл',
+      newDocument: 'Новый документ',
+      confirmClear: 'Вы уверены, что хотите очистить документ и начать новый?',
+      emptyDocument: 'Текст в PDF не найден'
     }
   }
 }
