@@ -92,7 +92,8 @@ const navItems = [
   { path: '/pdf-to-jpg', label: 'nav.pdfToJPG' },
   { path: '/word-to-pdf', label: 'nav.wordToPDF' },
   { path: '/word-to-jpg', label: 'nav.wordToJPG' },
-  { path: '/word-editor', label: 'nav.wordEditor' }
+  { path: '/word-editor', label: 'nav.wordEditor' },
+  { path: '/md-to-pdf', label: 'nav.mdToPDF' }
 ]
 
 const currentTheme = ref<string>('light')

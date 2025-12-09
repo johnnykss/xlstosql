@@ -38,7 +38,8 @@ export default {
     pdfToJPG: 'PDF → JPG',
     wordToPDF: 'Word → PDF',
     wordToJPG: 'Word → JPG',
-    wordEditor: 'Word Editor'
+    wordEditor: 'Word Editor',
+    mdToPDF: 'MD → PDF'
   },
   common: {
     chooseFile: 'Choose File',
@@ -87,6 +88,10 @@ export default {
     wordToJPG: {
       title: 'Word to JPG Converter',
       desc: 'Convert Word documents to JPG images'
+    },
+    mdToPDF: {
+      title: 'Markdown to PDF Converter',
+      desc: 'Convert Markdown files to PDF format'
     }
   }
 }
